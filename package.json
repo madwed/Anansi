@@ -5,6 +5,7 @@
   "main": "server/index.js",
   "scripts": {
     "start": "npm run build && node server/index.js",
+    "start-dev": "node server/index.js",
     "build": "gulp",
     "test": "mocha --compilers js:mocha-traceur test/**/*.spec.js"
   },
