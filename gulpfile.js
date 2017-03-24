@@ -39,7 +39,7 @@ gulp.task('buildCSS', function () {
 
 gulp.task('default', function(){
     gulp.start(['buildJS', 'buildCSS']);
-    if (process.ENV !== 'production') {
+    if (process.env.NODE_ENV !== 'production') {
       gulp.watch([js_client_start_path,js_client_path], function(){
           runSeq('buildJS');
       });
