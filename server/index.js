@@ -9,9 +9,7 @@ var options = {
 };
 
 
-app.set("port", process.env.OPENSHIFT_NODEJS_PORT || process.env.PORT || 3000);
-app.set("ip", process.env.OPENSHIFT_NODEJS_IP || "127.0.0.1");
-
+app.set("port", process.env.PORT || 3000);
 
 app.use(logger("dev"));
 
@@ -39,7 +37,6 @@ app.use(function (req, res, next) {
 
 });
 
-
 // Error catching endware.
 app.use(function (err, req, res, next) {
     console.error(err, typeof next);
@@ -48,7 +45,7 @@ app.use(function (err, req, res, next) {
 
 var startServer = function(){
     server.listen(app.get("port"), function () {
-        console.log("Server running at %s:%d", app.get("ip"), app.get("port"));
+        console.log("Server running on port %d", app.get("port"));
     });
 }
 

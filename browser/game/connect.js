@@ -78,8 +78,8 @@ function PeerConnect (playerData) {
 			if (res.env === "production") {
 				game.player = new Peer({
 					host: "/",
-					port: 80,
-					wsport: 8000,
+					port: '',
+					wsport: '',
 					path: "/api",
 					config: {
 						"iceServers": [{url: "stun:stun.l.google.com:19302"}]
