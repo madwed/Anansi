@@ -22,7 +22,6 @@ function withinRange(node1, node2, radii) {
     return dist < radii.outer && dist > radii.inner;
 }
 
-
 function connectField(field, radii) {
     var edges = [],
         potentialConnections,
@@ -71,7 +70,7 @@ function wiggleNodes(field, factors) {
     });
 }
 
-//Checks if the bases are connected 
+//Checks if the bases are connected
 function checkField(field) {
     var connected = [field.bases.host],
         nodes = field.nodes,
@@ -107,11 +106,6 @@ function makeGraph(options, radii) {
     wiggleNodes(field, wiggle);
     return checkField(field) || makeGraph(options, radii);
 }
-
-//Board notes
-//withinRange({inner: 15, outer:30-33}) decent setting, stringy, lots of dead ends
-//still need clipping of dense nodes
-
 
 module.exports = {
     generate: function() {

@@ -43,13 +43,13 @@ function MoveHandler(options){
 	var now = new Date();
 	var readyOrNot = function(func) {
 		var diff = new Date() - now;
-		if (diff > (1000 / 60)) {
+		if (diff > (1000 / 30)) {
 			func();
 		}else {
 			setTimeout(function() {
 				func();
 			}, diff);
-		}		
+		}
 	};
 	var execute = (data) => {
 		readyOrNot(function() {

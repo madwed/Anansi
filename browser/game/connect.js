@@ -72,7 +72,6 @@ function PeerConnect (playerData) {
 			game.opponentRole = "client";
 			game.board = Board.generate();
 		} else {
-		  console.log(res);
 			game.role = "client";
 			game.opponentRole = "host";
 			peerDataCommunication(game.player.connect(res.meet));

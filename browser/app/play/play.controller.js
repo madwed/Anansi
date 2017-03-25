@@ -3,26 +3,23 @@ var controls = require("../../game/game.logic/initialization/controls");
 var local = require("./local");
 
 var playController = function($scope) {
-    console.log(Crawlers.crawlers);
-    if (Crawlers.crawlers.length === 1) {
-        local.getCrawlers();
-    }
-    $scope.crawlers = Crawlers.crawlers;
+  if (Crawlers.crawlers.length === 1) {
+    local.getCrawlers();
+  }
 
-    $scope.setCrawler = function(num) {
-        controls.setCrawler(num);
-    };
+  $scope.crawlers = Crawlers.crawlers;
 
-    $scope.setThread = function(num) {
-        controls.setThread(num);
-    };
+  $scope.setCrawler = function(num) {
+    controls.setCrawler(num);
+  };
 
-    $scope.stopThread = function() {
-        controls.stop();
-    };
+  $scope.setThread = function(num) {
+    controls.setThread(num);
+  };
 
-    // controls.setCrawler(0);
-    // controls.setThread(0);
+  $scope.stopThread = function() {
+    controls.stop();
+  };
 };
 
 playController.$inject = ["$scope"];
