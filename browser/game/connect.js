@@ -7,7 +7,13 @@ var Board = require("./game.components/board"),
 	require("../lib/noBack");
 
 //Utility object to hold the client's Id, peer reference, and current connection reference
-var game = {myId: undefined, player: undefined, opponent: undefined, board: undefined, onpage: undefined};
+var game = {
+  myId: undefined,
+  player: undefined,
+  opponent: undefined,
+  board: undefined,
+  onpage: undefined,
+};
 var gameInterface;
 
 function PeerConnect (playerData) {
@@ -66,6 +72,7 @@ function PeerConnect (playerData) {
 			game.opponentRole = "client";
 			game.board = Board.generate();
 		} else {
+		  console.log(res);
 			game.role = "client";
 			game.opponentRole = "host";
 			peerDataCommunication(game.player.connect(res.meet));
@@ -86,7 +93,7 @@ function PeerConnect (playerData) {
 					}
 				});
 			} else {
-				game.player = new Peer({host: "127.0.0.1", port: 3000, path: "/api", debug: 2});
+				game.player = new Peer({ host: "127.0.0.1", port: 3000, path: "/api", debug: 2 });
 			}
 			//When the peer connection is established
 			game.player.on("open", function (id) {
@@ -100,7 +107,8 @@ function PeerConnect (playerData) {
 				peerDataCommunication(peerconn);
 			});
 			//If there is an error you get back in line
-			game.player.on("error", function () {
+			game.player.on("error", function (error) {
+			  console.warn(error);
 				clearBoard();
 				loading.on();
 				httpGet("/meet/" + game.myId, meetSomeone);
