@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/TheoLipeles/Anansi.git"
+    "url": "https://github.com/madwed/Anansi.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/TheoLipeles/Anansi/issues"
+    "url": "https://github.com/madwed/Anansi/issues"
   },
-  "homepage": "https://github.com/TheoLipeles/Anansi",
+  "homepage": "https://github.com/madwed/Anansi",
   "dependencies": {
     "angular": "^1.4.4",
     "angular-animate": "^1.4.4",
