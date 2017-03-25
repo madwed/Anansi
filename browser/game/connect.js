@@ -77,7 +77,7 @@ function PeerConnect (playerData) {
 		if(game.onpage){
 			if (res.env === "production") {
 				game.player = new Peer({
-					host: "/",
+					host: "anansi-game.herokuapp.com",
 					port: '',
 					wsport: '',
 					path: "/api",

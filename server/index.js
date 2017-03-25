@@ -5,7 +5,7 @@ var server = require("http").createServer(app);
 var logger = require("morgan");
 
 var options = {
-    debug: process.env.NODE_ENV !== "production"
+  debug: process.env.NODE_ENV !== "production"
 };
 
 
@@ -24,29 +24,27 @@ app.use('/api', peerServer);
 app.use('/', require('./routes'));
 
 app.get('/*', function (req, res) {
-    res.sendFile(app.get('indexHTMLPath'));
+  res.sendFile(app.get('indexHTMLPath'));
 });
 
 app.use(function (req, res, next) {
-
-    if (path.extname(req.path).length > 0) {
-        res.status(404).end();
-    } else {
-        next(null);
-    }
-
+  if (path.extname(req.path).length > 0) {
+    res.status(404).end();
+  } else {
+    next(null);
+  }
 });
 
 // Error catching endware.
 app.use(function (err, req, res, next) {
-    console.error(err, typeof next);
-    res.status(err.status || 500).send(err.message || 'Internal server error.');
+  console.error(err, typeof next);
+  res.status(err.status || 500).send(err.message || 'Internal server error.');
 });
 
 var startServer = function(){
-    server.listen(app.get("port"), function () {
-        console.log("Server running on port %d", app.get("port"));
-    });
+  server.listen(app.get("port"), function () {
+    console.log("Server running on port %d", app.get("port"));
+  });
 }
 
 startServer();
