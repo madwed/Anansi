@@ -74,7 +74,7 @@ function PeerConnect (playerData) {
 		} else {
 			game.role = "client";
 			game.opponentRole = "host";
-			peerDataCommunication(game.player.connect(res.meet));
+			peerDataCommunication(game.player.connect(res.meet, { reliable: true }));
 		}
 	}
 
@@ -105,9 +105,15 @@ function PeerConnect (playerData) {
 			game.player.on("connection", function (peerconn) {
 				peerDataCommunication(peerconn);
 			});
+
+      // Try to reconnect if you are disconnected
+      game.player.on('disconnect', function() {
+        game.player.reconnect();
+      });
+
 			//If there is an error you get back in line
 			game.player.on("error", function (error) {
-			  console.warn(error);
+			  console.warn(error, error.type);
 				clearBoard();
 				loading.on();
 				httpGet("/meet/" + game.myId, meetSomeone);
