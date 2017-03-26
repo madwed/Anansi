@@ -1,10 +1,10 @@
-var Board = require("./game.components/board"),
-	Interface = require("./game.logic/initialization/interface"),
-	gameSettings = require("../settings"),
-	clearBoard = require("./game.logic/clearBoard"),
-	loading = require("./messages").loading,
-	httpGet = require("../lib/httpUtil");
-	require("../lib/noBack");
+var Board = require('./game.components/board'),
+	Interface = require('./game.logic/initialization/interface'),
+	gameSettings = require('../settings'),
+	clearBoard = require('./game.logic/clearBoard'),
+	loading = require('./messages').loading,
+	httpGet = require('../lib/httpUtil');
+	require('../lib/noBack');
 
 //Utility object to hold the client's Id, peer reference, and current connection reference
 var game = {
@@ -19,43 +19,43 @@ var gameInterface;
 function PeerConnect (playerData) {
 	game.onpage = true;
 	playerData = playerData || {playerColor: gameSettings.player, opponentColor: gameSettings.opponent};
-	httpGet("/env", connectToServer);
+	httpGet('/env', connectToServer);
 
 	//When a peer DataConnection is established
 	function peerDataCommunication(peerconn) {
 		game.opponent = peerconn;
 
 		//When the connection opens...
-		peerconn.on("open", function () {
+		peerconn.on('open', function () {
 			loading.off();
-			if(game.role === "host") {
-				peerconn.send({type: "board", board: game.board});
+			if(game.role === 'host') {
+				peerconn.send({type: 'board', board: game.board});
 				gameInterface = new Interface(game, playerData);
 			}
 			//Listen for data
 			peerconn.on('data', function (data) {
 				//Do stuff with incoming data
-				if(data.type === "board"){
+				if (data.type === 'board') {
 					game.board = data.board;
 					gameInterface = new Interface(game, playerData);
-					peerconn.send({type: "move", moves: []});
-				}else if (data.type === "move"){
+					peerconn.send({type: 'move', moves: []});
+				} else if (data.type === 'move') {
 					gameInterface.updateBoard(data);
 				}
 			});
 		});
 
 		//If the other user closes the connection, search for another user
-		peerconn.on("close", function () {
+		peerconn.on('close', function () {
 			peerconn.close();
-			if(game.onpage){
+			if (game.onpage) {
 				game.opponent = undefined;
 				game.board = undefined;
 				gameInterface = undefined;
 				clearBoard();
 				$('.boardNav').remove();
 				loading.on();
-				httpGet("/meet/" + game.myId, meetSomeone);
+				httpGet('/meet/' + game.myId, meetSomeone);
 			}
 		});
 
@@ -67,13 +67,13 @@ function PeerConnect (playerData) {
 
 	//Receive the response from the server, potentially with another user's peer id
 	function meetSomeone(res) {
-		if (res.meet === "hold") {
-			game.role = "host";
-			game.opponentRole = "client";
+		if (res.meet === 'hold') {
+			game.role = 'host';
+			game.opponentRole = 'client';
 			game.board = Board.generate();
 		} else {
-			game.role = "client";
-			game.opponentRole = "host";
+			game.role = 'client';
+			game.opponentRole = 'host';
 			peerDataCommunication(game.player.connect(res.meet, { reliable: true }));
 		}
 	}
@@ -81,28 +81,28 @@ function PeerConnect (playerData) {
 	//Establish peer connection with server
 	function connectToServer(res) {
 		if(game.onpage){
-			if (res.env === "production") {
+			if (res.env === 'production') {
 				game.player = new Peer({
-					host: "anansi-game.herokuapp.com",
+					host: 'anansi-game.herokuapp.com',
 					port: '',
 					wsport: '',
-					path: "/api",
+					path: '/api',
 					config: {
-						"iceServers": [{url: "stun:stun.l.google.com:19302"}]
+						'iceServers': [{url: 'stun:stun.l.google.com:19302'}]
 					}
 				});
 			} else {
-				game.player = new Peer({ host: "127.0.0.1", port: 3000, path: "/api", debug: 2 });
+				game.player = new Peer({ host: '127.0.0.1', port: 3000, path: '/api', debug: 2 });
 			}
 			//When the peer connection is established
-			game.player.on("open", function (id) {
+			game.player.on('open', function (id) {
 				game.myId = id;
 				//Try to meet someone
 				loading.on();
-				httpGet("/meet/" + id, meetSomeone);
+				httpGet('/meet/' + id, meetSomeone);
 			});
 			//If someone calls, you answer
-			game.player.on("connection", function (peerconn) {
+			game.player.on('connection', function (peerconn) {
 				peerDataCommunication(peerconn);
 			});
 
@@ -112,11 +112,11 @@ function PeerConnect (playerData) {
       });
 
 			//If there is an error you get back in line
-			game.player.on("error", function (error) {
+			game.player.on('error', function (error) {
 			  console.warn(error, error.type);
-				clearBoard();
-				loading.on();
-				httpGet("/meet/" + game.myId, meetSomeone);
+				//clearBoard();
+				//loading.on();
+				//httpGet('/meet/' + game.myId, meetSomeone);
 			});
 		}
 	}
