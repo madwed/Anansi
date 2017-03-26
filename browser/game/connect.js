@@ -12,13 +12,18 @@ var game = {
   player: undefined,
   opponent: undefined,
   board: undefined,
-  onpage: undefined,
+  inProgress: false,
 };
+
+var defaultPlayerData = {
+  playerColor: gameSettings.player,
+  opponentColor: gameSettings.opponent,
+};
+
 var gameInterface;
 
 function PeerConnect (playerData) {
-	game.onpage = true;
-	playerData = playerData || {playerColor: gameSettings.player, opponentColor: gameSettings.opponent};
+	playerData = playerData || defaultPlayerData;
 	httpGet('/env', connectToServer);
 
 	//When a peer DataConnection is established
@@ -28,6 +33,7 @@ function PeerConnect (playerData) {
 		//When the connection opens...
 		peerconn.on('open', function () {
 			loading.off();
+			game.inProgress = true;
 			if(game.role === 'host') {
 				peerconn.send({type: 'board', board: game.board});
 				gameInterface = new Interface(game, playerData);
@@ -48,15 +54,17 @@ function PeerConnect (playerData) {
 		//If the other user closes the connection, search for another user
 		peerconn.on('close', function () {
 			peerconn.close();
-			if (game.onpage) {
-				game.opponent = undefined;
-				game.board = undefined;
-				gameInterface = undefined;
-				clearBoard();
-				$('.boardNav').remove();
-				loading.on();
-				httpGet('/meet/' + game.myId, meetSomeone);
-			}
+
+			game.inProgress = false;
+      game.opponent = undefined;
+      game.board = undefined;
+      gameInterface = undefined;
+
+      clearBoard();
+      $('.boardNav').remove();
+      loading.on();
+
+      httpGet('/meet/' + game.myId, meetSomeone);
 		});
 
 		//If the user closes the tab, tell the other user
@@ -80,60 +88,64 @@ function PeerConnect (playerData) {
 
 	//Establish peer connection with server
 	function connectToServer(res) {
-		if(game.onpage){
-			if (res.env === 'production') {
-				game.player = new Peer({
-					host: 'anansi-game.herokuapp.com',
-					port: '',
-					wsport: '',
-					path: '/api',
-					config: {
-						'iceServers': [{url: 'stun:stun.l.google.com:19302'}]
-					}
-				});
-			} else {
-				game.player = new Peer({ host: '127.0.0.1', port: 3000, path: '/api', debug: 2 });
-			}
-			//When the peer connection is established
-			game.player.on('open', function (id) {
-				game.myId = id;
-				//Try to meet someone
-				loading.on();
-				httpGet('/meet/' + id, meetSomeone);
-			});
-			//If someone calls, you answer
-			game.player.on('connection', function (peerconn) {
-				peerDataCommunication(peerconn);
-			});
-
-      // Try to reconnect if you are disconnected
-      game.player.on('disconnect', function() {
-        game.player.reconnect();
+    if (res.env === 'production') {
+      game.player = new Peer({
+        config: {
+          'iceServers': [{ url: 'stun:stun.l.google.com:19302' }]
+        },
+        host: 'anansi-game.herokuapp.com',
+        path: '/api',
+        port: '',
+        wsport: '',
       });
+    } else {
+      game.player = new Peer({
+        debug: 2,
+        host: '127.0.0.1',
+        path: '/api',
+        port: 3000,
+      });
+    }
+    //When the peer connection is established
+    game.player.on('open', function (id) {
+      game.myId = id;
+      //Try to meet someone
+      loading.on();
+      httpGet('/meet/' + id, meetSomeone);
+    });
+    //If someone calls, you answer
+    game.player.on('connection', function (peerconn) {
+      peerDataCommunication(peerconn);
+    });
 
-			//If there is an error you get back in line
-			game.player.on('error', function (error) {
-			  console.warn(error, error.type);
-				//clearBoard();
-				//loading.on();
-				//httpGet('/meet/' + game.myId, meetSomeone);
-			});
-		}
+    // Try to reconnect if you are disconnected
+    game.player.on('disconnect', function() {
+      game.player.reconnect();
+    });
+
+    //If there is an error you get back in line
+    game.player.on('error', function (error) {
+      console.warn(error, error.type);
+      if (!game.inProgress) {
+        clearBoard();
+        loading.on();
+        httpGet('/meet/' + game.myId, meetSomeone);
+      }
+    });
 	}
 
 	function closeConnection () {
-		game.onpage = undefined;
 		$('.boardNav').remove();
-		if(game.player){
-			game.player.destroy();
-			Object.keys(game).forEach(function (key) {
-				game[key] = undefined;
-			});
-		}
+
+		if (game.player) { game.player.destroy(); }
+    if (game.opponent) { game.opponent.close(); }
+
+    game.myId = undefined;
+    game.board = undefined;
+    game.inProgress = false;
 	}
 
 	return closeConnection;
 }
 
 module.exports = PeerConnect;
-
